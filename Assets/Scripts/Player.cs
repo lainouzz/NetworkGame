@@ -9,18 +9,20 @@ public class Player : NetworkBehaviour
     [SerializeField] private float speed;
     
     [SerializeField] private InputReader inputReader;
-
     [SerializeField] private GameObject objectToSpawn;
     
-    private NetworkVariable<Vector2> moveInput = new NetworkVariable<Vector2>();
     
+    private NetworkVariable<Vector2> moveInput = new NetworkVariable<Vector2>();
+    private Vector3 playerScale;
     void Start()
     {
         if (inputReader != null && IsLocalPlayer)
         {
             inputReader.MoveEvent += OnMove;
-            inputReader.ShootEvent += SpawnRPC;
+            inputReader.ShootEvent += Shoot;
         }
+
+        playerScale = transform.localScale;
     }
 
     private void OnMove(Vector2 input)
@@ -33,15 +35,37 @@ public class Player : NetworkBehaviour
     {
         if (IsServer)
         {
-            transform.position += (Vector3)moveInput.Value * (speed * Time.deltaTime);
+            Vector3 playerMove = (Vector3)moveInput.Value * (speed * Time.deltaTime);
+            transform.position += playerMove;
+
+            if (moveInput.Value.x < 0)
+            {
+                transform.localScale = new Vector3(-Mathf.Abs(playerScale.x), playerScale.y, playerScale.z);
+            }else if (moveInput.Value.x > 0)
+            {
+                transform.localScale = new Vector3(Mathf.Abs(playerScale.x), playerScale.y, playerScale.z);
+            }
         }
     }
-
+    private void Shoot()
+    {
+       SpawnRPC();
+    }
+    
     [Rpc(SendTo.Server)]
     private void SpawnRPC()
     {
-        NetworkObject ob = Instantiate(objectToSpawn, transform.position, transform.rotation).GetComponent<NetworkObject>();
-        ob.Spawn();
+        Vector2 direction = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
+        
+        GameObject bulletInstance = Instantiate(objectToSpawn, transform.position, Quaternion.identity);
+        NetworkObject networkObj = bulletInstance.GetComponent<NetworkObject>();
+        networkObj.Spawn();
+
+        Bullet bulletScript = bulletInstance.GetComponent<Bullet>();
+        if (bulletScript != null)
+        {
+            bulletScript.DirectionInit(direction);
+        }
     }
     
     [Rpc(SendTo.Server)]
