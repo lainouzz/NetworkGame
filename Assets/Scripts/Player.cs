@@ -13,7 +13,7 @@ public class Player : NetworkBehaviour
     
     
     private NetworkVariable<Vector2> moveInput = new NetworkVariable<Vector2>();
-    private Vector3 playerScale;
+    private NetworkVariable<float> playerScaleX = new NetworkVariable<float>(1f);
     void Start()
     {
         if (inputReader != null && IsLocalPlayer)
@@ -21,8 +21,6 @@ public class Player : NetworkBehaviour
             inputReader.MoveEvent += OnMove;
             inputReader.ShootEvent += Shoot;
         }
-
-        playerScale = transform.localScale;
     }
 
     private void OnMove(Vector2 input)
@@ -33,20 +31,29 @@ public class Player : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+        transform.localScale = new Vector3(playerScaleX.Value, transform.localScale.y, transform.localScale.z);
+        
         if (IsServer)
         {
-            Vector3 playerMove = (Vector3)moveInput.Value * (speed * Time.deltaTime);
-            transform.position += playerMove;
-
-            if (moveInput.Value.x < 0)
-            {
-                transform.localScale = new Vector3(-Mathf.Abs(playerScale.x), playerScale.y, playerScale.z);
-            }else if (moveInput.Value.x > 0)
-            {
-                transform.localScale = new Vector3(Mathf.Abs(playerScale.x), playerScale.y, playerScale.z);
-            }
+            HandleMovementAndFlipPlayerRpc();
         }
     }
+
+    [Rpc(SendTo.Server)]
+    private void HandleMovementAndFlipPlayerRpc()
+    {
+        Vector3 playerMove = (Vector3)moveInput.Value * (speed * Time.deltaTime);
+        transform.position += playerMove;
+
+        if (moveInput.Value.x < 0)
+        {
+            playerScaleX.Value = -Mathf.Abs(playerScaleX.Value);
+        }else if (moveInput.Value.x > 0)
+        {
+            playerScaleX.Value = Mathf.Abs(playerScaleX.Value);
+        }
+    }
+    
     private void Shoot()
     {
        SpawnRPC();
