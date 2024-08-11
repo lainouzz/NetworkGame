@@ -17,6 +17,7 @@ public class ChatManager : NetworkBehaviour
 
     public string playerName;
 
+    public NetworkManager networkManager;
     private void Awake()
     {
         ChatManager.Singleton = this;
@@ -56,4 +57,5 @@ public class ChatManager : NetworkBehaviour
     {
         ChatManager.Singleton.AddMessages(msg);
     }
+    
 }

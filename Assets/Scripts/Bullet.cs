@@ -20,7 +20,20 @@ public class Bullet : NetworkBehaviour
     {
         dir = -direction.normalized;
     }
-  
+
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (IsServer)
+        {
+            Player player = other.GetComponent<Player>();
+            if (player != null)
+            {
+                player.TakeDamageRpc(50);
+                DespawnBullets();
+            }
+        }
+    }
 
     // Update is called once per frame
     void Update()

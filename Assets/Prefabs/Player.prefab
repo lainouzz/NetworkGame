@@ -154,7 +154,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de02a7236a0692c448f3807848fbf992, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spawnBulletPos: {fileID: 6648548345179048943}
   speed: 3
+  currentHealth: 0
+  maxHealth: 100
+  respawnTime: 2
   inputReader: {fileID: 11400000, guid: bb37e3c2fbccf744b90379003974d4ad, type: 2}
   objectToSpawn: {fileID: 1637706674393834550, guid: 57d517c1e2eb2ce4299d44cfee9c1ba7, type: 3}
 --- !u!61 &3789754503049995622

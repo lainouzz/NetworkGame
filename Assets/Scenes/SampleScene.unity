@@ -539,7 +539,7 @@ MonoBehaviour:
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: db23265cf3cf66f46a070df6ce76a51a, type: 2}
-    TickRate: 30
+    TickRate: 60
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
     ConnectionData: 
@@ -585,6 +585,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   networkManager: {fileID: 383382016}
+  generalChatObj: {fileID: 1731515871}
 --- !u!1 &486662292
 GameObject:
   m_ObjectHideFlags: 0
@@ -984,7 +985,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -9.5, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -38.98999, y: -5.48999}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &1064352910
 CanvasGroup:
@@ -1089,7 +1090,7 @@ RectTransform:
   m_Father: {fileID: 782851021}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1186,6 +1187,7 @@ MonoBehaviour:
   chatContent: {fileID: 1064352910}
   chatInput: {fileID: 279744498}
   playerName: Player
+  networkManager: {fileID: 0}
 --- !u!4 &1118688585
 Transform:
   m_ObjectHideFlags: 0
@@ -1418,7 +1420,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1731515872
 RectTransform:
   m_ObjectHideFlags: 0
