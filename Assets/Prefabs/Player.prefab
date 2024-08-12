@@ -102,7 +102,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1108515295
+  GlobalObjectIdHash: 4070480083
   InScenePlacedSourceGlobalObjectIdHash: 4070480083
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -155,12 +155,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnBulletPos: {fileID: 6648548345179048943}
+  player1SpawnPos: {fileID: 7780333418534070100, guid: 037702ea8b40bba489e47708121e43fd, type: 3}
+  player2SpawnPos: {fileID: 8727647326269810797, guid: 9bb456d1058e5524091b2e752be5b40f, type: 3}
   speed: 3
   currentHealth: 0
   maxHealth: 100
   respawnTime: 2
   inputReader: {fileID: 11400000, guid: bb37e3c2fbccf744b90379003974d4ad, type: 2}
   objectToSpawn: {fileID: 1637706674393834550, guid: 57d517c1e2eb2ce4299d44cfee9c1ba7, type: 3}
+  player1Score:
+    m_InternalValue: 0
+  player2Score:
+    m_InternalValue: 0
 --- !u!61 &3789754503049995622
 BoxCollider2D:
   m_ObjectHideFlags: 0

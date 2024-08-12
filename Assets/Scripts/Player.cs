@@ -8,6 +8,9 @@ using Unity.VisualScripting;
 public class Player : NetworkBehaviour
 {
     public Transform spawnBulletPos;
+
+    public Transform player1SpawnPos;
+    public Transform player2SpawnPos;
     
     [SerializeField] private float speed;
 
@@ -135,8 +138,14 @@ public class Player : NetworkBehaviour
         if (IsServer)
         {
             currentHealth = maxHealth;
-
-            transform.position = spawnPosition;
+            if (IsPlayer1())
+            {
+                transform.position = player1SpawnPos.position;
+            }
+            else
+            {
+                transform.position = player2SpawnPos.position;
+            }
             
             SetPlayerActiveRpc(true);
         }
@@ -153,6 +162,7 @@ public class Player : NetworkBehaviour
         GetComponent<Collider2D>().enabled = isActive;
         GetComponent<SpriteRenderer>().enabled = isActive;
     }
+    //ta bort senare
     private void OnGUI()
     {
         if (IsLocalPlayer)
