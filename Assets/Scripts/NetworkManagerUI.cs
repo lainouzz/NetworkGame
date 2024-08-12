@@ -4,35 +4,37 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
+using TMPro;
 
 public class NetworkManagerUI : MonoBehaviour
 {
    [SerializeField] private NetworkManager networkManager;
-
+   
    public GameObject generalChatObj;
    public GameObject MainMenuUI;
+   public GameObject ClientQuitBtn;
    
-   [SerializeField] private bool isHosting;
-   [SerializeField] private bool isJoining;
+   public TMP_Text playerScore1Text;
+   public TMP_Text playerScore2Text;
+   
    [SerializeField] private bool isPaused;
-
-
    public void HostBtn()
    {
-      if (!isHosting)
+      if (!NetworkManager.Singleton.IsHost && !NetworkManager.Singleton.IsClient)
       {
-         isHosting = true;
          networkManager.StartHost();
          generalChatObj.SetActive(true);
+         MainMenuUI.SetActive(false);
       }
+      
    }
    public void JoinBtn()
    {
-      if (!isJoining)
+      if (!NetworkManager.Singleton.IsHost && !NetworkManager.Singleton.IsClient)
       {
-         isJoining = true;
          networkManager.StartClient();
          generalChatObj.SetActive(true);
+         MainMenuUI.SetActive(false);
       }
    }
    public void QuitBtn()
@@ -42,50 +44,115 @@ public class NetworkManagerUI : MonoBehaviour
 
    private void Update()
    {
-      if (isHosting)
+      if (NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsHost)
       {
-         MainMenuUI.SetActive(false);
-         
-      }else if (isJoining)
-      {
-         MainMenuUI.SetActive(false);
-
+         ClientQuitBtn.SetActive(true);
       }
-      handlePauseRpc();
+      else
+      {
+         ClientQuitBtn.SetActive(false);
+      }
       
-   }
-   [Rpc(SendTo.Everyone)]
-   void handlePauseRpc()
-   {
-      if (Input.GetKeyDown(KeyCode.Escape))
+     /* var player = FindObjectOfType<Player>();
+      if (player != null)
+      {
+         player.player1Score.OnValueChanged += UpdatePlayer1Score;
+         player.player2Score.OnValueChanged += UpdatePlayer2Score;
+      }*/
+      
+      if (NetworkManager.Singleton.IsHost && Input.GetKeyDown(KeyCode.Escape))
       {
          if (isPaused)
          {
-            ResumeRpc();
+            Resume();
          }
          else
          {
-           PauseRpc();
+            Pause();
          }
       }
    }
-   [Rpc(SendTo.Everyone)]
-   private void PauseRpc()
+   
+   private void Pause()
    {
-      isHosting = false;
-      isJoining = false;
       isPaused = true;
       MainMenuUI.SetActive(true);
-      Time.timeScale = 0;
+      
+      var player = GetComponent<Player>();
+      if (player != null)
+      {
+         player.enabled = false;
+      }
+
+      ServerPauseRpc();
    }
-   [Rpc(SendTo.Everyone)]
-   private void ResumeRpc()
+
+   private void Resume()
    {
-      isHosting = true;
-      isJoining = true;
       isPaused = false;
       MainMenuUI.SetActive(false);
-      Time.timeScale = 1;
+
+      var player = GetComponent<Player>();
+      if (player != null)
+      {
+         player.enabled = true;
+      }
+      ServerResumeRpc();
+   }
+   
+   [ServerRpc(RequireOwnership = false)]
+   private void ServerPauseRpc(ServerRpcParams rpcParams = default)
+   {
+      if (NetworkManager.Singleton.IsHost)
+      {
+         Time.timeScale = 0;
+         
+         var player = GetComponent<Player>();
+         if (player != null)
+         {
+            player.enabled = false;
+            
+         }
+      }
+   }
+   
+   [ServerRpc(RequireOwnership = false)]
+   private void ServerResumeRpc(ServerRpcParams rpcParams = default)
+   {
+      if (NetworkManager.Singleton.IsHost)
+      {
+         Time.timeScale = 1;
+         
+         var player = GetComponent<Player>();
+         if (player != null)
+         {
+            player.enabled = true;
+            Time.timeScale = 1;
+         }
+      }
+   }
+   
+
+   public void UpdatePlayer1Score(int newScore)
+   {
+      playerScore1Text.text = "Score: " + newScore;
+   }
+   public void UpdatePlayer2Score(int newScore)
+   {
+      playerScore2Text.text = "Score: " + newScore;
+   }
+
+   private Player FindPlayer(ulong clientId)
+   {
+      foreach (var player in FindObjectsOfType<Player>())
+      {
+         if (player.OwnerClientId == clientId)
+         {
+            return player;
+         }
+      }
+
+      return null;
    }
 }
 

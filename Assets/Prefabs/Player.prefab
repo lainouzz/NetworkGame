@@ -157,7 +157,7 @@ MonoBehaviour:
   spawnBulletPos: {fileID: 6648548345179048943}
   player1SpawnPos: {fileID: 7780333418534070100, guid: 037702ea8b40bba489e47708121e43fd, type: 3}
   player2SpawnPos: {fileID: 8727647326269810797, guid: 9bb456d1058e5524091b2e752be5b40f, type: 3}
-  speed: 3
+  speed: 4
   currentHealth: 0
   maxHealth: 100
   respawnTime: 2
@@ -196,7 +196,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}

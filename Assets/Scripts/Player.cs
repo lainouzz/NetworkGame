@@ -12,7 +12,7 @@ public class Player : NetworkBehaviour
     public Transform player1SpawnPos;
     public Transform player2SpawnPos;
     
-    [SerializeField] private float speed;
+    [SerializeField]private float speed;
 
     [SerializeField] private float currentHealth;
     [SerializeField] private float maxHealth;
@@ -25,8 +25,10 @@ public class Player : NetworkBehaviour
     
     private NetworkVariable<Vector2> moveInput = new NetworkVariable<Vector2>();
     private NetworkVariable<float> playerScaleX = new NetworkVariable<float>(1f);
-    public NetworkVariable<int> player1Score = new NetworkVariable<int>(0);
-    public NetworkVariable<int> player2Score = new NetworkVariable<int>(0);
+    
+    public NetworkVariable<int> player1Score = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone);
+    public NetworkVariable<int> player2Score = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone);
+    public NetworkVariable<int> playerId = new NetworkVariable<int>();
     
     void Start()
     {
@@ -56,6 +58,7 @@ public class Player : NetworkBehaviour
         if (IsServer)
         {
             HandleMovementAndFlipPlayerRpc();
+           
         }
     }
 
@@ -109,25 +112,17 @@ public class Player : NetworkBehaviour
             currentHealth -= damage;
             if (currentHealth <= 0)
             {
-                HandlePlayerDeathRpc();
+                updateScore();
+                HandlePlayerDeathServerRpc();
             }
         }
     }
 
-    [Rpc(SendTo.Server)]
-    private void HandlePlayerDeathRpc()
+    [ServerRpc(RequireOwnership = false)]
+    private void HandlePlayerDeathServerRpc()
     {
         if (IsServer)
         {
-            if (IsPlayer1())
-            {
-                player2Score.Value += 1;
-            }
-            else
-            {
-                player1Score.Value += 1;
-            }
-
             SetPlayerActiveRpc(false);
             Invoke(nameof(RespawnPlayerRpc), respawnTime);
         }
@@ -142,7 +137,7 @@ public class Player : NetworkBehaviour
             {
                 transform.position = player1SpawnPos.position;
             }
-            else
+            else if(IsPlayer2())
             {
                 transform.position = player2SpawnPos.position;
             }
@@ -151,24 +146,87 @@ public class Player : NetworkBehaviour
         }
     }
    
-    private bool IsPlayer1()
+    public bool IsPlayer1()
     {
-        return NetworkObjectId == 1;
+        return playerId.Value == 1;
+    }
+    public bool IsPlayer2()
+    {
+        return playerId.Value == 2;
+    }
+    
+    public override void OnNetworkSpawn()
+    {
+        if (IsServer)
+        {
+            if (NetworkManager.Singleton.ConnectedClients.Count == 1)
+            {
+                playerId.Value = 1;
+            }
+            if (NetworkManager.Singleton.ConnectedClients.Count == 2)
+            {
+                playerId.Value = 2;
+            }
+        }
+    }
+    
+    [ServerRpc(RequireOwnership = false)]
+    void UpdatePlayer1ScoreServerRpc(int newScore)
+    {
+        player1Score.Value = newScore;
+        UpdatePlayer1ScoreClientRpc(newScore);
     }
 
+    // Call this on the server to update Player 2's score
+    [ServerRpc(RequireOwnership = false)]
+    void UpdatePlayer2ScoreServerRpc(int newScore)
+    {
+        player2Score.Value = newScore;
+        UpdatePlayer2ScoreClientRpc(newScore);
+    }
+
+    [ClientRpc]
+    void UpdatePlayer1ScoreClientRpc(int newScore)
+    {
+        var networkUI = FindObjectOfType<NetworkManagerUI>();
+        if (networkUI != null)
+        {
+            networkUI.UpdatePlayer1Score(newScore);
+        }
+    }
+
+    // This ClientRpc updates the UI on all clients for Player 2
+    [ClientRpc]
+    void UpdatePlayer2ScoreClientRpc(int newScore)
+    {
+        var networkUI = FindObjectOfType<NetworkManagerUI>();
+        if (networkUI != null)
+        {
+            networkUI.UpdatePlayer2Score(newScore);
+        }
+    }
+
+    void updateScore()
+    {
+        if (IsServer)
+        {
+            if (IsPlayer1())
+            {
+                UpdatePlayer1ScoreServerRpc(player1Score.Value + 1);
+            }
+            else
+            {
+                UpdatePlayer2ScoreServerRpc(player2Score.Value + 1);
+            }
+        }
+        
+    }
+    
     [Rpc(SendTo.Everyone)]
     private void SetPlayerActiveRpc(bool isActive)
     {
         GetComponent<Collider2D>().enabled = isActive;
         GetComponent<SpriteRenderer>().enabled = isActive;
     }
-    //ta bort senare
-    private void OnGUI()
-    {
-        if (IsLocalPlayer)
-        {
-            GUI.Label(new Rect(50, 10, 500, 50), "Player 1 Score: " + player1Score.Value);
-            GUI.Label(new Rect(50, 30, 500, 50), "Player 2 Score: " + player2Score.Value);
-        }
-    }
+   
 }

@@ -22,7 +22,7 @@ public class Bullet : NetworkBehaviour
     }
 
 
-    private void OnTriggerEnter2D(Collider2D other)
+    /*private void OnTriggerEnter2D(Collider2D other)
     {
         if (IsServer)
         {
@@ -33,12 +33,31 @@ public class Bullet : NetworkBehaviour
                 DespawnBullets();
             }
         }
-    }
+    }*/
 
     // Update is called once per frame
     void Update()
     {
         transform.Translate(dir * (speed * Time.deltaTime));
+
+        if (IsServer)
+        {
+            BulletCollisionChecker();
+        }
+    }
+
+    private void BulletCollisionChecker()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, speed * Time.deltaTime);
+        if (hit.collider != null)
+        {
+            Player player = hit.collider.GetComponent<Player>();
+            if (player != null)
+            {
+                player.TakeDamageRpc(50);
+                DespawnBullets();
+            }
+        }
     }
 
     void DespawnBullets()
