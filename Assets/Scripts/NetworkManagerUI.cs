@@ -16,6 +16,8 @@ public class NetworkManagerUI : MonoBehaviour
    
    public TMP_Text playerScore1Text;
    public TMP_Text playerScore2Text;
+   public TMP_Text player1HealthText;
+   public TMP_Text player2HealthText;
    
    [SerializeField] private bool isPaused;
    public void HostBtn()
@@ -25,6 +27,7 @@ public class NetworkManagerUI : MonoBehaviour
          networkManager.StartHost();
          generalChatObj.SetActive(true);
          MainMenuUI.SetActive(false);
+         player1HealthText.gameObject.SetActive(true);
       }
       
    }
@@ -35,6 +38,8 @@ public class NetworkManagerUI : MonoBehaviour
          networkManager.StartClient();
          generalChatObj.SetActive(true);
          MainMenuUI.SetActive(false);
+         player2HealthText.gameObject.SetActive(true);
+
       }
    }
    public void QuitBtn()
@@ -52,13 +57,6 @@ public class NetworkManagerUI : MonoBehaviour
       {
          ClientQuitBtn.SetActive(false);
       }
-      
-     /* var player = FindObjectOfType<Player>();
-      if (player != null)
-      {
-         player.player1Score.OnValueChanged += UpdatePlayer1Score;
-         player.player2Score.OnValueChanged += UpdatePlayer2Score;
-      }*/
       
       if (NetworkManager.Singleton.IsHost && Input.GetKeyDown(KeyCode.Escape))
       {
@@ -111,7 +109,6 @@ public class NetworkManagerUI : MonoBehaviour
          if (player != null)
          {
             player.enabled = false;
-            
          }
       }
    }
@@ -132,7 +129,6 @@ public class NetworkManagerUI : MonoBehaviour
       }
    }
    
-
    public void UpdatePlayer1Score(int newScore)
    {
       playerScore1Text.text = "Score: " + newScore;
@@ -140,6 +136,19 @@ public class NetworkManagerUI : MonoBehaviour
    public void UpdatePlayer2Score(int newScore)
    {
       playerScore2Text.text = "Score: " + newScore;
+   }
+
+   public void UpdatePlayer1Health(float health)
+   {
+      var player = FindObjectOfType<Player>();
+
+      player1HealthText.text = "P1 " + health + " / " + player.maxHealth;
+   }
+   public void UpdatePlayer2Health(float health)
+   {
+      var player = FindObjectOfType<Player>();
+
+      player2HealthText.text = "P2 " + health + " / " + player.maxHealth;
    }
 
    private Player FindPlayer(ulong clientId)

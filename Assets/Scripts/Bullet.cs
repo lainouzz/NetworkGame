@@ -7,12 +7,15 @@ using Unity.Netcode;
 public class Bullet : NetworkBehaviour
 {
     public float speed = 10;
+    
+    private bool hasHit;
+    
     private Vector2 dir;
     private void Start()
     {
         if (IsServer)
         {
-            Invoke(nameof(DespawnBullets), 5f);
+            Invoke(nameof(BulletDespawn), 3f);
         }
     }
 
@@ -20,20 +23,7 @@ public class Bullet : NetworkBehaviour
     {
         dir = -direction.normalized;
     }
-
-
-    /*private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (IsServer)
-        {
-            Player player = other.GetComponent<Player>();
-            if (player != null)
-            {
-                player.TakeDamageRpc(50);
-                DespawnBullets();
-            }
-        }
-    }*/
+    
 
     // Update is called once per frame
     void Update()
@@ -43,8 +33,26 @@ public class Bullet : NetworkBehaviour
         if (IsServer)
         {
             BulletCollisionChecker();
+        }else if (!hasHit)
+        {
+            BulletCollisionPredictor();
         }
     }
+
+    private void BulletCollisionPredictor()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, speed * Time.deltaTime);
+        if (hit.collider != null)
+        {
+            Player player = hit.collider.GetComponent<Player>();
+            if (player != null)
+            {
+                hasHit = true;
+                player.TakeDamageRpc(50);
+            }
+        }
+    }
+
 
     private void BulletCollisionChecker()
     {
@@ -55,12 +63,12 @@ public class Bullet : NetworkBehaviour
             if (player != null)
             {
                 player.TakeDamageRpc(50);
-                DespawnBullets();
+                BulletDespawn();
             }
         }
     }
 
-    void DespawnBullets()
+    void BulletDespawn()
     {
         if (NetworkObject != null && NetworkObject.IsSpawned)
         {
