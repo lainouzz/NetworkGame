@@ -5,12 +5,16 @@ using UnityEngine;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using TMPro;
+using Unity.Mathematics;
 
 public class Player : NetworkBehaviour
 {
     public Transform spawnBulletPos;
     public Transform player1SpawnPos;
     public Transform player2SpawnPos;
+
+    public AudioClip audio;
+    public AudioSource audioSource;
     
     [SerializeField]private float speed;
     
@@ -81,7 +85,15 @@ public class Player : NetworkBehaviour
     
     private void Shoot()
     {
+        PlaySoundsClientRpc();
+        
        SpawnRPC();
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void PlaySoundsClientRpc()
+    {
+        audioSource.PlayOneShot(audio);
     }
     
     [Rpc(SendTo.Server)]
@@ -89,7 +101,7 @@ public class Player : NetworkBehaviour
     {
         Vector2 direction = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
         
-        GameObject bulletInstance = Instantiate(objectToSpawn, spawnBulletPos.position, Quaternion.identity);
+        GameObject bulletInstance = Instantiate(objectToSpawn, spawnBulletPos.position, quaternion.identity);
         NetworkObject networkObj = bulletInstance.GetComponent<NetworkObject>();
         networkObj.Spawn();
 
@@ -112,7 +124,6 @@ public class Player : NetworkBehaviour
         if (IsServer)
         {
             currentHealth.Value -= damage;
-            
             if (currentHealth.Value <= 0)
             {
                 UpdateScore();
