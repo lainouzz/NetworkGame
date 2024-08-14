@@ -52,8 +52,7 @@ public class Bullet : NetworkBehaviour
             }
         }
     }
-
-
+    
     private void BulletCollisionChecker()
     {
         RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, speed * Time.deltaTime);

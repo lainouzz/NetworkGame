@@ -84,7 +84,7 @@ public class Player : NetworkBehaviour
     }
     
     private void Shoot()
-    {
+    { 
         PlaySoundsClientRpc();
         
        SpawnRPC();
@@ -101,7 +101,7 @@ public class Player : NetworkBehaviour
     {
         Vector2 direction = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
         
-        GameObject bulletInstance = Instantiate(objectToSpawn, spawnBulletPos.position, quaternion.identity);
+        GameObject bulletInstance = Instantiate(objectToSpawn, spawnBulletPos.position, Quaternion.identity);
         NetworkObject networkObj = bulletInstance.GetComponent<NetworkObject>();
         networkObj.Spawn();
 

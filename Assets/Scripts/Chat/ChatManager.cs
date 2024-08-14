@@ -32,7 +32,6 @@ public class ChatManager : NetworkBehaviour
             chatInput.text = " ";
         }
     }
-
     private void SendChatMessage(string message, string fromSender = null)
     {
         if (string.IsNullOrWhiteSpace(message)) return;
@@ -40,7 +39,6 @@ public class ChatManager : NetworkBehaviour
         string str = fromSender + " > " + message;
         SendChatMessageServerRpc(str);
     }
-
     void AddMessages(string msg)
     {
         ChatMessage ChatMsg = Instantiate(chatMsgPrefab, chatContent.transform);
@@ -51,7 +49,6 @@ public class ChatManager : NetworkBehaviour
     {
         ReceiveChatMessageFromClientRpc(msg);
     }
-
     [ClientRpc]
     private void ReceiveChatMessageFromClientRpc(string msg)
     {
